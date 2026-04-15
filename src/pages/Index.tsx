@@ -1,16 +1,99 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import BottomNav from "@/components/BottomNav";
+import HomeScreen from "@/screens/HomeScreen";
+import SearchScreen from "@/screens/SearchScreen";
+import FavoritesScreen from "@/screens/FavoritesScreen";
+import MyTicketsScreen from "@/screens/MyTicketsScreen";
+import ProfileScreen from "@/screens/ProfileScreen";
+import EventDetailScreen from "@/screens/EventDetailScreen";
+import SeatSelectionScreen from "@/screens/SeatSelectionScreen";
+import CheckoutScreen from "@/screens/CheckoutScreen";
+import { Event } from "@/lib/data";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+type Screen =
+  | { type: "tabs" }
+  | { type: "event-detail"; event: Event }
+  | { type: "seat-selection"; event: Event }
+  | { type: "checkout"; event: Event; section: string; quantity: number; total: number };
+
+const Index = () => {
+  const [activeTab, setActiveTab] = useState("home");
+  const [screen, setScreen] = useState<Screen>({ type: "tabs" });
+
+  const handleEventSelect = (event: Event) => {
+    setScreen({ type: "event-detail", event });
+  };
+
+  const handleSelectSeats = (event: Event) => {
+    setScreen({ type: "seat-selection", event });
+  };
+
+  const handleCheckout = (event: Event, section: string, quantity: number, total: number) => {
+    setScreen({ type: "checkout", event, section, quantity, total });
+  };
+
+  const handleCheckoutComplete = () => {
+    setScreen({ type: "tabs" });
+    setActiveTab("tickets");
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "home":
+        return <HomeScreen onEventSelect={handleEventSelect} />;
+      case "search":
+        return <SearchScreen onEventSelect={handleEventSelect} />;
+      case "favorites":
+        return <FavoritesScreen onEventSelect={handleEventSelect} />;
+      case "tickets":
+        return <MyTicketsScreen />;
+      case "profile":
+        return <ProfileScreen />;
+      default:
+        return <HomeScreen onEventSelect={handleEventSelect} />;
+    }
+  };
+
+  const renderScreen = () => {
+    switch (screen.type) {
+      case "event-detail":
+        return (
+          <EventDetailScreen
+            event={screen.event}
+            onBack={() => setScreen({ type: "tabs" })}
+            onSelectSeats={handleSelectSeats}
+          />
+        );
+      case "seat-selection":
+        return (
+          <SeatSelectionScreen
+            event={screen.event}
+            onBack={() => setScreen({ type: "event-detail", event: screen.event })}
+            onCheckout={handleCheckout}
+          />
+        );
+      case "checkout":
+        return (
+          <CheckoutScreen
+            event={screen.event}
+            section={screen.section}
+            quantity={screen.quantity}
+            total={screen.total}
+            onBack={() => setScreen({ type: "seat-selection", event: screen.event })}
+            onComplete={handleCheckoutComplete}
+          />
+        );
+      default:
+        return renderTabContent();
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-background max-w-md mx-auto relative overflow-x-hidden">
+      {renderScreen()}
+      <BottomNav activeTab={activeTab} onTabChange={(tab) => { setActiveTab(tab); setScreen({ type: "tabs" }); }} />
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
