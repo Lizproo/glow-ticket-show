@@ -1,7 +1,7 @@
 import { ArrowLeft, Calendar, Clock, MapPin, Share2, Heart, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Event } from "@/lib/data";
-import { useState } from "react";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface EventDetailScreenProps {
   event: Event;
@@ -10,7 +10,8 @@ interface EventDetailScreenProps {
 }
 
 const EventDetailScreen = ({ event, onBack, onSelectSeats }: EventDetailScreenProps) => {
-  const [liked, setLiked] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const liked = isFavorite(event.id);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
@@ -39,7 +40,7 @@ const EventDetailScreen = ({ event, onBack, onSelectSeats }: EventDetailScreenPr
               <Share2 className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setLiked(!liked)}
+              onClick={() => toggleFavorite(event.id)}
               className={`p-2 rounded-full bg-card/60 backdrop-blur-sm ${liked ? "text-primary" : "text-foreground"}`}
             >
               <Heart className="w-5 h-5" fill={liked ? "currentColor" : "none"} />
