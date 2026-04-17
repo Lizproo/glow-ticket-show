@@ -1,7 +1,7 @@
 import { Calendar, MapPin, Heart } from "lucide-react";
 import { Event } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface EventCardProps {
   event: Event;
@@ -10,7 +10,8 @@ interface EventCardProps {
 }
 
 const EventCard = ({ event, onClick, variant = "vertical" }: EventCardProps) => {
-  const [liked, setLiked] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const liked = isFavorite(event.id);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
@@ -62,7 +63,7 @@ const EventCard = ({ event, onClick, variant = "vertical" }: EventCardProps) => 
         />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
         <button
-          onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}
+          onClick={(e) => { e.stopPropagation(); toggleFavorite(event.id); }}
           className={cn(
             "absolute top-2 right-2 p-1.5 rounded-full bg-card/60 backdrop-blur-sm transition-all",
             liked && "text-primary"

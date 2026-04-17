@@ -1,14 +1,15 @@
 import { Heart } from "lucide-react";
 import EventCard from "@/components/EventCard";
 import { events, Event } from "@/lib/data";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface FavoritesScreenProps {
   onEventSelect: (event: Event) => void;
 }
 
 const FavoritesScreen = ({ onEventSelect }: FavoritesScreenProps) => {
-  // Simulated favorites
-  const favorites = events.slice(0, 3);
+  const { favorites } = useFavorites();
+  const favoriteEvents = events.filter((e) => favorites.includes(e.id));
 
   return (
     <div className="pb-24">
@@ -17,14 +18,15 @@ const FavoritesScreen = ({ onEventSelect }: FavoritesScreenProps) => {
         <p className="text-xs text-muted-foreground mt-0.5">Eventos que te interesan</p>
       </div>
 
-      {favorites.length === 0 ? (
+      {favoriteEvents.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
           <Heart className="w-12 h-12 text-muted-foreground/30" />
           <p className="text-sm text-muted-foreground mt-3">No tienes favoritos aún</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">Toca el ❤️ en cualquier evento</p>
         </div>
       ) : (
         <div className="px-4 mt-4 flex flex-col gap-3">
-          {favorites.map((event) => (
+          {favoriteEvents.map((event) => (
             <EventCard key={event.id} event={event} onClick={onEventSelect} variant="horizontal" />
           ))}
         </div>
