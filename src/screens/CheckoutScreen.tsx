@@ -46,10 +46,10 @@ const CheckoutScreen = ({ event, section, quantity, total, onBack, onComplete }:
   }
 
   return (
-    <div className="pb-28">
+    <div className="pb-28 gradient-mesh min-h-screen">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-3 safe-top">
-        <button onClick={onBack} className="p-2 rounded-full bg-muted text-foreground">
+        <button onClick={onBack} aria-label="Volver" className="p-2 rounded-full glass-strong text-foreground">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-lg font-bold text-foreground">Checkout</h1>
