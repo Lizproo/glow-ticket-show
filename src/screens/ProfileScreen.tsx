@@ -1,12 +1,16 @@
-import { User, CreditCard, Bell, HelpCircle, LogOut, ChevronRight, Shield, Moon, Clock, Heart, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { User, CreditCard, Bell, HelpCircle, LogOut, ChevronRight, Shield, Moon, Clock, Heart, Sparkles, Pencil } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
-import { usePreferences } from "@/hooks/usePreferences";
+import EditProfileDialog from "@/components/EditProfileDialog";
+import { usePreferences, defaultProfile } from "@/hooks/usePreferences";
 import { useFavorites } from "@/hooks/useFavorites";
 import { events, categories, sampleTickets } from "@/lib/data";
 
 const ProfileScreen = () => {
   const { prefs, history, savePrefs } = usePreferences();
   const { favorites } = useFavorites();
+  const [editing, setEditing] = useState(false);
+  const profile = prefs.profile ?? defaultProfile;
 
   const favCats = categories.filter((c) => prefs.categories.includes(c.id));
   const recent = history
