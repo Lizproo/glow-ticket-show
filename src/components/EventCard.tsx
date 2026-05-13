@@ -33,7 +33,7 @@ const EventCard = ({ event, onClick, variant = "vertical" }: EventCardProps) => 
         <div className="flex flex-col justify-between flex-1 min-w-0">
           <div>
             <p className="text-xs font-semibold text-primary uppercase tracking-wide">
-              {event.category === "concerts" ? "Concierto" : event.category === "theater" ? "Teatro" : event.category === "comedy" ? "Comedia" : event.category === "festivals" ? "Festival" : "Deporte"}
+              {event.category === "concerts" ? "Concierto" : event.category === "theater" ? "Teatro" : event.category === "comedy" ? "Comedia" : event.category === "festivals" ? "Festival" : event.category === "opera" ? "Ópera" : "Deporte"}
             </p>
             <h3 className="font-bold text-sm text-foreground truncate">{event.title}</h3>
           </div>
