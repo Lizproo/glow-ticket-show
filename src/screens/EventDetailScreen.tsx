@@ -2,6 +2,8 @@ import { ArrowLeft, Calendar, Clock, MapPin, Share2, Heart, Users } from "lucide
 import { Button } from "@/components/ui/button";
 import { Event } from "@/lib/data";
 import { useFavorites } from "@/hooks/useFavorites";
+import { usePreferences } from "@/hooks/usePreferences";
+import { useEffect } from "react";
 
 interface EventDetailScreenProps {
   event: Event;
@@ -11,7 +13,12 @@ interface EventDetailScreenProps {
 
 const EventDetailScreen = ({ event, onBack, onSelectSeats }: EventDetailScreenProps) => {
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { trackView } = usePreferences();
   const liked = isFavorite(event.id);
+
+  useEffect(() => {
+    trackView(event.id);
+  }, [event.id, trackView]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
@@ -32,16 +39,18 @@ const EventDetailScreen = ({ event, onBack, onSelectSeats }: EventDetailScreenPr
         <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
         <div className="absolute top-4 left-4 right-4 flex justify-between safe-top">
-          <button onClick={onBack} className="p-2 rounded-full bg-card/60 backdrop-blur-sm text-foreground">
+          <button onClick={onBack} aria-label="Volver" className="p-2 rounded-full bg-card/60 backdrop-blur-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex gap-2">
-            <button className="p-2 rounded-full bg-card/60 backdrop-blur-sm text-foreground">
+            <button aria-label="Compartir evento" className="p-2 rounded-full bg-card/60 backdrop-blur-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring">
               <Share2 className="w-5 h-5" />
             </button>
             <button
               onClick={() => toggleFavorite(event.id)}
-              className={`p-2 rounded-full bg-card/60 backdrop-blur-sm ${liked ? "text-primary" : "text-foreground"}`}
+              aria-label={liked ? "Quitar de favoritos" : "Agregar a favoritos"}
+              aria-pressed={liked}
+              className={`p-2 rounded-full bg-card/60 backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-ring ${liked ? "text-primary" : "text-foreground"}`}
             >
               <Heart className="w-5 h-5" fill={liked ? "currentColor" : "none"} />
             </button>

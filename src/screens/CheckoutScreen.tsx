@@ -46,10 +46,10 @@ const CheckoutScreen = ({ event, section, quantity, total, onBack, onComplete }:
   }
 
   return (
-    <div className="pb-28">
+    <div className="pb-28 gradient-mesh min-h-screen">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-3 safe-top">
-        <button onClick={onBack} className="p-2 rounded-full bg-muted text-foreground">
+        <button onClick={onBack} aria-label="Volver" className="p-2 rounded-full glass-strong text-foreground">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-lg font-bold text-foreground">Checkout</h1>
@@ -57,7 +57,7 @@ const CheckoutScreen = ({ event, section, quantity, total, onBack, onComplete }:
 
       {/* Order Summary */}
       <div className="px-4 mt-2">
-        <div className="glass-card rounded-2xl p-4">
+        <div className="glass-strong rounded-2xl p-4">
           <h3 className="text-sm font-bold text-foreground mb-3">Resumen del pedido</h3>
           <div className="flex gap-3">
             <img src={event.image} alt={event.title} className="w-16 h-16 rounded-lg object-cover" loading="lazy" />
@@ -113,7 +113,7 @@ const CheckoutScreen = ({ event, section, quantity, total, onBack, onComplete }:
       {/* Card Form (simplified) */}
       {paymentMethod === "card" && (
         <div className="px-4 mt-4">
-          <div className="glass-card rounded-2xl p-4 space-y-3">
+          <div className="glass-strong rounded-2xl p-4 space-y-3">
             <div>
               <label className="text-xs font-medium text-muted-foreground">Número de tarjeta</label>
               <input

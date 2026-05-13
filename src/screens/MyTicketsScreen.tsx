@@ -1,7 +1,8 @@
-import { Calendar, MapPin, QrCode } from "lucide-react";
+import { Calendar, MapPin, QrCode, ShieldCheck } from "lucide-react";
 import { sampleTickets, Ticket } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import AnimatedQR from "@/components/AnimatedQR";
 
 const MyTicketsScreen = () => {
   const [activeFilter, setActiveFilter] = useState<"active" | "used" | "expired">("active");
@@ -112,13 +113,16 @@ const TicketCard = ({
 
         {expanded && (
           <div className="mt-4 animate-slide-up">
-            <div className="flex flex-col items-center gap-2 p-4 bg-muted rounded-xl">
-              {/* Simulated QR Code */}
-              <div className="w-32 h-32 bg-foreground rounded-lg flex items-center justify-center">
-                <QrCode className="w-20 h-20 text-background" />
+            <div className="flex flex-col items-center gap-3 p-4 bg-muted/60 rounded-xl">
+              <AnimatedQR value={ticket.qrCode} size={170} />
+              <p className="text-xs font-mono text-muted-foreground tracking-wider">{ticket.qrCode}</p>
+              <p className="text-[10px] text-muted-foreground">
+                Asiento: {ticket.seat} · {ticket.quantity} entrada{ticket.quantity > 1 ? "s" : ""}
+              </p>
+              <div className="flex items-center gap-1.5 text-[10px] text-secondary font-semibold">
+                <ShieldCheck className="w-3 h-3" />
+                Validación cifrada en tiempo real
               </div>
-              <p className="text-xs font-mono text-muted-foreground">{ticket.qrCode}</p>
-              <p className="text-[10px] text-muted-foreground">Asiento: {ticket.seat} · {ticket.quantity} entrada{ticket.quantity > 1 ? "s" : ""}</p>
             </div>
           </div>
         )}
