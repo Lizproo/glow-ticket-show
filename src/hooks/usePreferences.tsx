@@ -5,10 +5,24 @@ const KEY_HISTORY = "glowticket-history";
 const KEY_ONBOARD = "glowticket-onboarded";
 const EVENT = "preferences-changed";
 
+export interface Profile {
+  name: string;
+  email: string;
+  phone: string;
+  avatar?: string;
+}
+
 export interface Preferences {
   categories: string[];
   city?: string;
+  profile?: Profile;
 }
+
+export const defaultProfile: Profile = {
+  name: "Usuario Demo",
+  email: "usuario@glowticket.com",
+  phone: "",
+};
 
 const read = <T,>(key: string, fallback: T): T => {
   try {
