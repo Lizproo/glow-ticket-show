@@ -1,5 +1,5 @@
-import { Search, SlidersHorizontal, X } from "lucide-react";
-import { useState } from "react";
+import { Search, SlidersHorizontal, X, Sparkles, TrendingUp } from "lucide-react";
+import { useMemo, useState } from "react";
 import EventCard from "@/components/EventCard";
 import { events, Event } from "@/lib/data";
 
@@ -11,13 +11,27 @@ const SearchScreen = ({ onEventSelect }: SearchScreenProps) => {
   const [query, setQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<"all" | "low" | "mid" | "high">("all");
+  const [focused, setFocused] = useState(false);
+
+  const q = query.toLowerCase().trim();
+
+  const suggestions = useMemo(() => {
+    if (!q) return [];
+    const pool = new Set<string>();
+    for (const e of events) {
+      if (e.title.toLowerCase().includes(q)) pool.add(e.title);
+      if (e.city.toLowerCase().includes(q)) pool.add(e.city);
+      if (e.venue.toLowerCase().includes(q)) pool.add(e.venue);
+    }
+    return Array.from(pool).slice(0, 5);
+  }, [q]);
 
   const filtered = events.filter((e) => {
     const matchesQuery =
-      !query ||
-      e.title.toLowerCase().includes(query.toLowerCase()) ||
-      e.city.toLowerCase().includes(query.toLowerCase()) ||
-      e.venue.toLowerCase().includes(query.toLowerCase());
+      !q ||
+      e.title.toLowerCase().includes(q) ||
+      e.city.toLowerCase().includes(q) ||
+      e.venue.toLowerCase().includes(q);
 
     const matchesPrice =
       priceRange === "all" ||
@@ -36,34 +50,56 @@ const SearchScreen = ({ onEventSelect }: SearchScreenProps) => {
         <h1 className="text-xl font-bold text-foreground">Buscar</h1>
       </div>
 
-      {/* Search Bar */}
-      <div className="px-4 mt-2">
-        <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-muted">
+      <div className="px-4 mt-2 relative">
+        <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-muted focus-within:ring-2 focus-within:ring-ring transition-all">
           <Search className="w-5 h-5 text-muted-foreground flex-shrink-0" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setTimeout(() => setFocused(false), 150)}
             placeholder="Buscar eventos, artistas, venues..."
+            aria-label="Campo de búsqueda"
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {query && (
-            <button onClick={() => setQuery("")}>
+            <button onClick={() => setQuery("")} aria-label="Limpiar búsqueda">
               <X className="w-4 h-4 text-muted-foreground" />
             </button>
           )}
-          <button onClick={() => setShowFilters(!showFilters)} className="p-1">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="p-1"
+            aria-label="Mostrar filtros"
+            aria-expanded={showFilters}
+          >
             <SlidersHorizontal className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
+
+        {/* Autocomplete */}
+        {focused && suggestions.length > 0 && (
+          <div className="absolute left-4 right-4 mt-2 z-20 glass-card rounded-2xl overflow-hidden animate-fade-in shadow-lg">
+            {suggestions.map((s) => (
+              <button
+                key={s}
+                onMouseDown={() => setQuery(s)}
+                className="flex items-center gap-2 w-full px-4 py-2.5 text-left text-sm text-foreground hover:bg-muted/60 transition-colors"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-secondary" />
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Filters */}
       {showFilters && (
         <div className="px-4 mt-3 animate-slide-up">
           <div className="glass-card rounded-2xl p-4">
             <h3 className="text-xs font-bold text-foreground mb-2">Rango de precio</h3>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {([
                 { id: "all", label: "Todos" },
                 { id: "low", label: "< $50" },
@@ -87,16 +123,18 @@ const SearchScreen = ({ onEventSelect }: SearchScreenProps) => {
         </div>
       )}
 
-      {/* Popular Searches */}
       {!query && (
         <div className="px-4 mt-4">
-          <h3 className="text-xs font-bold text-foreground mb-2">Búsquedas populares</h3>
+          <h3 className="text-xs font-bold text-foreground mb-2 flex items-center gap-1">
+            <TrendingUp className="w-3.5 h-3.5 text-primary" />
+            Búsquedas populares
+          </h3>
           <div className="flex flex-wrap gap-2">
             {popular.map((term) => (
               <button
                 key={term}
                 onClick={() => setQuery(term)}
-                className="px-3 py-1.5 rounded-full bg-muted text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
+                className="px-3 py-1.5 rounded-full bg-muted text-xs font-medium text-muted-foreground hover:bg-accent transition-colors hover-scale"
               >
                 {term}
               </button>
@@ -105,7 +143,6 @@ const SearchScreen = ({ onEventSelect }: SearchScreenProps) => {
         </div>
       )}
 
-      {/* Results */}
       <div className="px-4 mt-4">
         <p className="text-xs text-muted-foreground mb-3">
           {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
