@@ -162,6 +162,13 @@ const ProfileScreen = () => {
       </div>
 
       <p className="text-center text-[10px] text-muted-foreground mt-6">GlowTicket v2.0.0</p>
+
+      <EditProfileDialog
+        open={editing}
+        initial={profile}
+        onClose={() => setEditing(false)}
+        onSave={(p) => savePrefs({ ...prefs, profile: p })}
+      />
     </div>
   );
 };
