@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BottomNav from "@/components/BottomNav";
+import Chatbot from "@/components/Chatbot";
 import HomeScreen from "@/screens/HomeScreen";
 import SearchScreen from "@/screens/SearchScreen";
 import FavoritesScreen from "@/screens/FavoritesScreen";
@@ -8,7 +9,9 @@ import ProfileScreen from "@/screens/ProfileScreen";
 import EventDetailScreen from "@/screens/EventDetailScreen";
 import SeatSelectionScreen from "@/screens/SeatSelectionScreen";
 import CheckoutScreen from "@/screens/CheckoutScreen";
+import OnboardingScreen from "@/screens/OnboardingScreen";
 import { Event } from "@/lib/data";
+import { isOnboarded } from "@/hooks/usePreferences";
 
 type Screen =
   | { type: "tabs" }
@@ -19,19 +22,16 @@ type Screen =
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [screen, setScreen] = useState<Screen>({ type: "tabs" });
+  const [onboarded, setOnboardedState] = useState<boolean>(true);
 
-  const handleEventSelect = (event: Event) => {
-    setScreen({ type: "event-detail", event });
-  };
+  useEffect(() => {
+    setOnboardedState(isOnboarded());
+  }, []);
 
-  const handleSelectSeats = (event: Event) => {
-    setScreen({ type: "seat-selection", event });
-  };
-
-  const handleCheckout = (event: Event, section: string, quantity: number, total: number) => {
+  const handleEventSelect = (event: Event) => setScreen({ type: "event-detail", event });
+  const handleSelectSeats = (event: Event) => setScreen({ type: "seat-selection", event });
+  const handleCheckout = (event: Event, section: string, quantity: number, total: number) =>
     setScreen({ type: "checkout", event, section, quantity, total });
-  };
-
   const handleCheckoutComplete = () => {
     setScreen({ type: "tabs" });
     setActiveTab("tickets");
@@ -88,11 +88,28 @@ const Index = () => {
     }
   };
 
+  if (!onboarded) {
+    return (
+      <main className="min-h-screen bg-background max-w-md mx-auto relative overflow-x-hidden">
+        <OnboardingScreen onComplete={() => setOnboardedState(true)} />
+      </main>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background max-w-md mx-auto relative overflow-x-hidden">
-      {renderScreen()}
-      <BottomNav activeTab={activeTab} onTabChange={(tab) => { setActiveTab(tab); setScreen({ type: "tabs" }); }} />
-    </div>
+    <main className="min-h-screen bg-background max-w-md mx-auto relative overflow-x-hidden">
+      <div key={screen.type === "tabs" ? activeTab : screen.type} className="animate-fade-in">
+        {renderScreen()}
+      </div>
+      <Chatbot />
+      <BottomNav
+        activeTab={activeTab}
+        onTabChange={(tab) => {
+          setActiveTab(tab);
+          setScreen({ type: "tabs" });
+        }}
+      />
+    </main>
   );
 };
 
