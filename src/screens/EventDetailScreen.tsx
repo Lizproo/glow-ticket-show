@@ -62,7 +62,7 @@ const EventDetailScreen = ({ event, onBack, onSelectSeats }: EventDetailScreenPr
       <div className="px-4 -mt-8 relative">
         <div className="glass-card rounded-2xl p-4">
           <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase">
-            {event.category === "concerts" ? "Concierto" : event.category === "theater" ? "Teatro" : event.category === "comedy" ? "Comedia" : event.category === "festivals" ? "Festival" : "Deporte"}
+            {event.category === "concerts" ? "Concierto" : event.category === "theater" ? "Teatro" : event.category === "comedy" ? "Comedia" : event.category === "festivals" ? "Festival" : event.category === "opera" ? "Ópera" : "Deporte"}
           </span>
           <h1 className="text-xl font-bold text-foreground mt-2">{event.title}</h1>
 
