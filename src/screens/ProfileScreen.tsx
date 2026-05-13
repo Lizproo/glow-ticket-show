@@ -1,7 +1,26 @@
-import { User, Settings, CreditCard, Bell, HelpCircle, LogOut, ChevronRight, Shield, Moon, Sun } from "lucide-react";
+import { User, CreditCard, Bell, HelpCircle, LogOut, ChevronRight, Shield, Moon, Clock, Heart, Sparkles } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import { usePreferences } from "@/hooks/usePreferences";
+import { useFavorites } from "@/hooks/useFavorites";
+import { events, categories, sampleTickets } from "@/lib/data";
 
 const ProfileScreen = () => {
+  const { prefs, history, savePrefs } = usePreferences();
+  const { favorites } = useFavorites();
+
+  const favCats = categories.filter((c) => prefs.categories.includes(c.id));
+  const recent = history
+    .map((id) => events.find((e) => e.id === id))
+    .filter((e): e is typeof events[number] => Boolean(e))
+    .slice(0, 4);
+
+  const togglePrefCat = (id: string) => {
+    const next = prefs.categories.includes(id)
+      ? prefs.categories.filter((x) => x !== id)
+      : [...prefs.categories, id];
+    savePrefs({ ...prefs, categories: next });
+  };
+
   const menuItems = [
     { icon: User, label: "Datos personales", desc: "Nombre, email, teléfono" },
     { icon: CreditCard, label: "Métodos de pago", desc: "Tarjetas guardadas" },
@@ -18,14 +37,16 @@ const ProfileScreen = () => {
 
       {/* Profile Card */}
       <div className="px-4 mt-3">
-        <div className="glass-card rounded-2xl p-4 flex items-center gap-4">
+        <div className="glass-card rounded-2xl p-4 flex items-center gap-4 hover-scale transition-transform">
           <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center">
             <User className="w-8 h-8 text-primary-foreground" />
           </div>
           <div className="flex-1">
             <h2 className="font-bold text-foreground">Usuario Demo</h2>
             <p className="text-xs text-muted-foreground">usuario@glowticket.com</p>
-            <p className="text-xs text-secondary font-semibold mt-1">🎫 2 tickets activos</p>
+            <p className="text-xs text-secondary font-semibold mt-1">
+              🎫 {sampleTickets.filter((t) => t.status === "active").length} tickets activos
+            </p>
           </div>
         </div>
       </div>
@@ -34,11 +55,11 @@ const ProfileScreen = () => {
       <div className="px-4 mt-4">
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: "Eventos", value: "12" },
-            { label: "Tickets", value: "18" },
-            { label: "Favoritos", value: "5" },
+            { label: "Vistos", value: history.length },
+            { label: "Tickets", value: sampleTickets.length },
+            { label: "Favoritos", value: favorites.length },
           ].map((stat) => (
-            <div key={stat.label} className="glass-card rounded-xl p-3 text-center">
+            <div key={stat.label} className="glass-card rounded-xl p-3 text-center hover-scale transition-transform">
               <p className="text-lg font-bold text-secondary">{stat.value}</p>
               <p className="text-[10px] text-muted-foreground">{stat.label}</p>
             </div>
@@ -46,8 +67,61 @@ const ProfileScreen = () => {
         </div>
       </div>
 
+      {/* Categorías favoritas */}
+      <div className="px-4 mt-5">
+        <h3 className="text-sm font-bold text-foreground mb-2 flex items-center gap-1.5">
+          <Sparkles className="w-4 h-4 text-secondary" />
+          Categorías favoritas
+        </h3>
+        <div className="glass-card rounded-2xl p-3 flex flex-wrap gap-2">
+          {categories.filter((c) => c.id !== "all").map((cat) => {
+            const active = prefs.categories.includes(cat.id);
+            return (
+              <button
+                key={cat.id}
+                onClick={() => togglePrefCat(cat.id)}
+                aria-pressed={active}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                }`}
+              >
+                <span>{cat.icon}</span>
+                {cat.label}
+              </button>
+            );
+          })}
+        </div>
+        {favCats.length === 0 && (
+          <p className="text-[11px] text-muted-foreground mt-2">
+            Selecciona al menos una para mejorar tus recomendaciones.
+          </p>
+        )}
+      </div>
+
+      {/* Historial reciente */}
+      {recent.length > 0 && (
+        <div className="px-4 mt-5">
+          <h3 className="text-sm font-bold text-foreground mb-2 flex items-center gap-1.5">
+            <Clock className="w-4 h-4 text-primary" />
+            Visto recientemente
+          </h3>
+          <div className="glass-card rounded-2xl p-3 flex flex-col gap-2">
+            {recent.map((e) => (
+              <div key={e.id} className="flex items-center gap-3">
+                <img src={e.image} alt={e.title} className="w-10 h-10 rounded-lg object-cover" loading="lazy" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{e.title}</p>
+                  <p className="text-[10px] text-muted-foreground">{e.city}</p>
+                </div>
+                {favorites.includes(e.id) && <Heart className="w-3.5 h-3.5 text-primary" fill="currentColor" />}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Theme Toggle */}
-      <div className="px-4 mt-4">
+      <div className="px-4 mt-5">
         <div className="glass-card rounded-2xl p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Moon className="w-5 h-5 text-muted-foreground" />
@@ -57,13 +131,13 @@ const ProfileScreen = () => {
         </div>
       </div>
 
-      {/* Menu Items */}
+      {/* Menu */}
       <div className="px-4 mt-4">
         <div className="glass-card rounded-2xl overflow-hidden divide-y divide-border">
           {menuItems.map((item) => (
             <button
               key={item.label}
-              className="flex items-center gap-3 p-4 w-full text-left hover:bg-muted/50 transition-colors"
+              className="flex items-center gap-3 p-4 w-full text-left hover:bg-muted/50 transition-colors focus-visible:outline-none focus-visible:bg-muted/50"
             >
               <item.icon className="w-5 h-5 text-primary flex-shrink-0" />
               <div className="flex-1">
@@ -76,7 +150,6 @@ const ProfileScreen = () => {
         </div>
       </div>
 
-      {/* Logout */}
       <div className="px-4 mt-4">
         <button className="flex items-center gap-3 p-4 w-full text-left glass-card rounded-2xl hover:bg-destructive/10 transition-colors">
           <LogOut className="w-5 h-5 text-destructive" />
@@ -84,7 +157,7 @@ const ProfileScreen = () => {
         </button>
       </div>
 
-      <p className="text-center text-[10px] text-muted-foreground mt-6">GlowTicket v1.0.0</p>
+      <p className="text-center text-[10px] text-muted-foreground mt-6">GlowTicket v2.0.0</p>
     </div>
   );
 };
