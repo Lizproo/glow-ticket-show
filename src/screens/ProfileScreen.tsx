@@ -1,16 +1,21 @@
 import { useState } from "react";
-import { User, CreditCard, Bell, HelpCircle, LogOut, ChevronRight, Shield, Moon, Clock, Heart, Sparkles, Pencil } from "lucide-react";
+import { User, CreditCard, Bell, HelpCircle, LogOut, ChevronRight, Shield, Moon, Clock, Heart, Sparkles, Pencil, Crown } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import EditProfileDialog from "@/components/EditProfileDialog";
 import { usePreferences, defaultProfile } from "@/hooks/usePreferences";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useAuth } from "@/hooks/useAuth";
 import { events, categories, sampleTickets } from "@/lib/data";
+import { toast } from "@/hooks/use-toast";
 
 const ProfileScreen = () => {
   const { prefs, history, savePrefs } = usePreferences();
   const { favorites } = useFavorites();
+  const { user, profile: authProfile, role, signOut } = useAuth();
   const [editing, setEditing] = useState(false);
   const profile = prefs.profile ?? defaultProfile;
+  const displayName = authProfile?.full_name ?? profile.name ?? "Usuario";
+  const displayEmail = user?.email ?? "—";
 
   const favCats = categories.filter((c) => prefs.categories.includes(c.id));
   const recent = history
@@ -42,16 +47,34 @@ const ProfileScreen = () => {
       {/* Profile Card */}
       <div className="px-4 mt-3">
         <div className="glass-card rounded-2xl p-4 flex items-center gap-4 hover-scale transition-transform">
-          <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center">
-            <User className="w-8 h-8 text-primary-foreground" />
+          <div className="relative w-16 h-16 rounded-full gradient-primary flex items-center justify-center overflow-hidden">
+            {authProfile?.avatar_url || profile.avatar ? (
+              <img src={authProfile?.avatar_url ?? profile.avatar} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-8 h-8 text-primary-foreground" />
+            )}
           </div>
-          <div className="flex-1">
-            <h2 className="font-bold text-foreground">Usuario Demo</h2>
-            <p className="text-xs text-muted-foreground">usuario@glowticket.com</p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="font-bold text-foreground truncate">{displayName}</h2>
+              {role === "admin" && (
+                <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full gradient-primary text-primary-foreground">
+                  <Crown className="w-2.5 h-2.5" /> ADMIN
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
             <p className="text-xs text-secondary font-semibold mt-1">
               🎫 {sampleTickets.filter((t) => t.status === "active").length} tickets activos
             </p>
           </div>
+          <button
+            onClick={() => setEditing(true)}
+            aria-label="Editar perfil"
+            className="p-2 rounded-full bg-muted hover:bg-accent transition-colors"
+          >
+            <Pencil className="w-4 h-4 text-foreground" />
+          </button>
         </div>
       </div>
 
@@ -155,7 +178,13 @@ const ProfileScreen = () => {
       </div>
 
       <div className="px-4 mt-4">
-        <button className="flex items-center gap-3 p-4 w-full text-left glass-card rounded-2xl hover:bg-destructive/10 transition-colors">
+        <button
+          onClick={async () => {
+            await signOut();
+            toast({ title: "Sesión cerrada" });
+          }}
+          className="flex items-center gap-3 p-4 w-full text-left glass-card rounded-2xl hover:bg-destructive/10 transition-colors"
+        >
           <LogOut className="w-5 h-5 text-destructive" />
           <span className="text-sm font-medium text-destructive">Cerrar sesión</span>
         </button>

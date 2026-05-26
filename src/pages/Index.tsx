@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import Chatbot from "@/components/Chatbot";
 import HomeScreen from "@/screens/HomeScreen";
@@ -10,8 +11,11 @@ import EventDetailScreen from "@/screens/EventDetailScreen";
 import SeatSelectionScreen from "@/screens/SeatSelectionScreen";
 import CheckoutScreen from "@/screens/CheckoutScreen";
 import OnboardingScreen from "@/screens/OnboardingScreen";
+import AuthScreen from "@/screens/AuthScreen";
+import AdminScreen from "@/screens/AdminScreen";
 import { Event } from "@/lib/data";
 import { isOnboarded } from "@/hooks/usePreferences";
+import { useAuth } from "@/hooks/useAuth";
 
 type Screen =
   | { type: "tabs" }
@@ -20,6 +24,7 @@ type Screen =
   | { type: "checkout"; event: Event; section: string; quantity: number; total: number };
 
 const Index = () => {
+  const { user, role, loading } = useAuth();
   const [activeTab, setActiveTab] = useState("home");
   const [screen, setScreen] = useState<Screen>({ type: "tabs" });
   const [onboarded, setOnboardedState] = useState<boolean>(true);
@@ -47,6 +52,8 @@ const Index = () => {
         return <FavoritesScreen onEventSelect={handleEventSelect} />;
       case "tickets":
         return <MyTicketsScreen />;
+      case "admin":
+        return role === "admin" ? <AdminScreen /> : <HomeScreen onEventSelect={handleEventSelect} />;
       case "profile":
         return <ProfileScreen />;
       default:
@@ -88,10 +95,26 @@ const Index = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </main>
+    );
+  }
+
   if (!onboarded) {
     return (
       <main className="min-h-screen bg-background max-w-md mx-auto relative overflow-x-hidden">
         <OnboardingScreen onComplete={() => setOnboardedState(true)} />
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main className="min-h-screen bg-background max-w-md mx-auto relative overflow-x-hidden">
+        <AuthScreen />
       </main>
     );
   }
@@ -104,6 +127,7 @@ const Index = () => {
       <Chatbot />
       <BottomNav
         activeTab={activeTab}
+        showAdmin={role === "admin"}
         onTabChange={(tab) => {
           setActiveTab(tab);
           setScreen({ type: "tabs" });
