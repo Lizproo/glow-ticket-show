@@ -17,6 +17,8 @@ interface Stats {
   totalUsers: number;
   totalAdmins: number;
   totalRegular: number;
+  totalTickets: number;
+  totalRevenue: number;
 }
 
 const AdminScreen = () => {
