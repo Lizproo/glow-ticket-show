@@ -85,7 +85,7 @@ const ProfileScreen = () => {
         <div className="grid grid-cols-3 gap-3">
           {[
             { label: "Vistos", value: history.length },
-            { label: "Tickets", value: sampleTickets.length },
+            { label: "Tickets", value: tickets.length },
             { label: "Favoritos", value: favorites.length },
           ].map((stat) => (
             <div key={stat.label} className="glass-card rounded-xl p-3 text-center hover-scale transition-transform">
