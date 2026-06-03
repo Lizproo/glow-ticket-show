@@ -68,8 +68,15 @@ const AdminScreen = () => {
         </div>
         <div className="glass-card rounded-2xl p-4">
           <Ticket className="w-5 h-5 text-primary mb-2" />
-          <p className="text-2xl font-bold text-foreground">{sampleTickets.length}</p>
-          <p className="text-xs text-muted-foreground">Tickets demo</p>
+          <p className="text-2xl font-bold text-foreground">{stats?.totalTickets ?? "—"}</p>
+          <p className="text-xs text-muted-foreground">Tickets vendidos</p>
+        </div>
+        <div className="glass-card rounded-2xl p-4 col-span-2">
+          <DollarSign className="w-5 h-5 text-secondary mb-2" />
+          <p className="text-2xl font-bold text-foreground">
+            ${stats?.totalRevenue?.toFixed(2) ?? "0.00"} <span className="text-xs text-muted-foreground">USD</span>
+          </p>
+          <p className="text-xs text-muted-foreground">Ingresos totales</p>
         </div>
       </div>
 
