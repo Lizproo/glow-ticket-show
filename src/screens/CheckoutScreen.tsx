@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Event } from "@/lib/data";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTickets } from "@/hooks/useTickets";
+import { toast } from "@/hooks/use-toast";
 
 interface CheckoutScreenProps {
   event: Event;
@@ -17,17 +19,26 @@ const CheckoutScreen = ({ event, section, quantity, total, onBack, onComplete }:
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const { purchase } = useTickets();
 
   const serviceFee = Math.round(total * 0.1);
   const grandTotal = total + serviceFee;
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
     setProcessing(true);
-    setTimeout(() => {
+    try {
+      await purchase(event, section, quantity, grandTotal);
       setProcessing(false);
       setSuccess(true);
-      setTimeout(onComplete, 2000);
-    }, 2000);
+      setTimeout(onComplete, 1800);
+    } catch (e) {
+      setProcessing(false);
+      toast({
+        title: "Error en la compra",
+        description: e instanceof Error ? e.message : "Intenta de nuevo",
+        variant: "destructive",
+      });
+    }
   };
 
   if (success) {

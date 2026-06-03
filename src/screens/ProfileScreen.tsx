@@ -4,13 +4,15 @@ import ThemeToggle from "@/components/ThemeToggle";
 import EditProfileDialog from "@/components/EditProfileDialog";
 import { usePreferences, defaultProfile } from "@/hooks/usePreferences";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useTickets } from "@/hooks/useTickets";
 import { useAuth } from "@/hooks/useAuth";
-import { events, categories, sampleTickets } from "@/lib/data";
+import { events, categories } from "@/lib/data";
 import { toast } from "@/hooks/use-toast";
 
 const ProfileScreen = () => {
   const { prefs, history, savePrefs } = usePreferences();
   const { favorites } = useFavorites();
+  const { tickets } = useTickets();
   const { user, profile: authProfile, role, signOut } = useAuth();
   const [editing, setEditing] = useState(false);
   const profile = prefs.profile ?? defaultProfile;
@@ -65,7 +67,7 @@ const ProfileScreen = () => {
             </div>
             <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
             <p className="text-xs text-secondary font-semibold mt-1">
-              🎫 {sampleTickets.filter((t) => t.status === "active").length} tickets activos
+              🎫 {tickets.filter((t) => t.status === "active").length} tickets activos
             </p>
           </div>
           <button
@@ -83,7 +85,7 @@ const ProfileScreen = () => {
         <div className="grid grid-cols-3 gap-3">
           {[
             { label: "Vistos", value: history.length },
-            { label: "Tickets", value: sampleTickets.length },
+            { label: "Tickets", value: tickets.length },
             { label: "Favoritos", value: favorites.length },
           ].map((stat) => (
             <div key={stat.label} className="glass-card rounded-xl p-3 text-center hover-scale transition-transform">
