@@ -57,12 +57,19 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const [{ data: profiles, count: profileCount }, { data: roles }] = await Promise.all([
+    const [
+      { data: profiles, count: profileCount },
+      { data: roles },
+      { count: ticketCount },
+      { data: revenueRows },
+    ] = await Promise.all([
       admin
         .from("profiles")
         .select("id,user_id,full_name,phone,avatar_url,created_at", { count: "exact" })
         .order("created_at", { ascending: false }),
       admin.from("user_roles").select("user_id,role"),
+      admin.from("tickets").select("*", { count: "exact", head: true }),
+      admin.from("tickets").select("total_price"),
     ]);
 
     const roleMap = new Map<string, string[]>();
@@ -77,10 +84,17 @@ serve(async (req) => {
       roles: roleMap.get(p.user_id) ?? ["user"],
     }));
 
+    const revenue = (revenueRows ?? []).reduce(
+      (sum: number, r: any) => sum + Number(r.total_price ?? 0),
+      0,
+    );
+
     const stats = {
       totalUsers: profileCount ?? users.length,
       totalAdmins: users.filter((u) => u.roles.includes("admin")).length,
       totalRegular: users.filter((u) => !u.roles.includes("admin")).length,
+      totalTickets: ticketCount ?? 0,
+      totalRevenue: revenue,
     };
 
     return new Response(JSON.stringify({ users, stats }), {
