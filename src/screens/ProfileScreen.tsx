@@ -4,8 +4,9 @@ import ThemeToggle from "@/components/ThemeToggle";
 import EditProfileDialog from "@/components/EditProfileDialog";
 import { usePreferences, defaultProfile } from "@/hooks/usePreferences";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useTickets } from "@/hooks/useTickets";
 import { useAuth } from "@/hooks/useAuth";
-import { events, categories, sampleTickets } from "@/lib/data";
+import { events, categories } from "@/lib/data";
 import { toast } from "@/hooks/use-toast";
 
 const ProfileScreen = () => {
