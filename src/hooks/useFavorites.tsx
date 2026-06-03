@@ -1,38 +1,54 @@
 import { useState, useEffect, useCallback } from "react";
-
-const STORAGE_KEY = "glowticket-favorites";
-const EVENT_NAME = "favorites-changed";
-
-const readFavorites = (): string[] => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-};
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export const useFavorites = () => {
-  const [favorites, setFavorites] = useState<string[]>(() => readFavorites());
+  const { user } = useAuth();
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  const load = useCallback(async () => {
+    if (!user) {
+      setFavorites([]);
+      return;
+    }
+    const { data } = await supabase
+      .from("favorites")
+      .select("event_id")
+      .eq("user_id", user.id);
+    setFavorites((data ?? []).map((r: any) => r.event_id));
+  }, [user]);
 
   useEffect(() => {
-    const sync = () => setFavorites(readFavorites());
-    window.addEventListener(EVENT_NAME, sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener(EVENT_NAME, sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
+    load();
+  }, [load]);
 
-  const toggleFavorite = useCallback((id: string) => {
-    const current = readFavorites();
-    const next = current.includes(id) ? current.filter((x) => x !== id) : [...current, id];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    window.dispatchEvent(new Event(EVENT_NAME));
-  }, []);
+  const toggleFavorite = useCallback(
+    async (id: string) => {
+      if (!user) return;
+      const isFav = favorites.includes(id);
+      // optimistic
+      setFavorites((prev) =>
+        isFav ? prev.filter((x) => x !== id) : [...prev, id]
+      );
+      if (isFav) {
+        await supabase
+          .from("favorites")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("event_id", id);
+      } else {
+        await supabase
+          .from("favorites")
+          .insert({ user_id: user.id, event_id: id });
+      }
+    },
+    [favorites, user]
+  );
 
-  const isFavorite = useCallback((id: string) => favorites.includes(id), [favorites]);
+  const isFavorite = useCallback(
+    (id: string) => favorites.includes(id),
+    [favorites]
+  );
 
   return { favorites, toggleFavorite, isFavorite };
 };
