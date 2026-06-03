@@ -67,7 +67,7 @@ const ProfileScreen = () => {
             </div>
             <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
             <p className="text-xs text-secondary font-semibold mt-1">
-              🎫 {sampleTickets.filter((t) => t.status === "active").length} tickets activos
+              🎫 {tickets.filter((t) => t.status === "active").length} tickets activos
             </p>
           </div>
           <button
