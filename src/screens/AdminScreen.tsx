@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Shield, Users, Crown, User as UserIcon, Loader2, Ticket, Calendar } from "lucide-react";
+import { Shield, Users, Crown, User as UserIcon, Loader2, Ticket, Calendar, DollarSign } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { events, sampleTickets } from "@/lib/data";
+import { events } from "@/lib/data";
 
 interface AdminUser {
   id: string;
