@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 const ProfileScreen = () => {
   const { prefs, history, savePrefs } = usePreferences();
   const { favorites } = useFavorites();
+  const { tickets } = useTickets();
   const { user, profile: authProfile, role, signOut } = useAuth();
   const [editing, setEditing] = useState(false);
   const profile = prefs.profile ?? defaultProfile;
