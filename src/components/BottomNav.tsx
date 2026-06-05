@@ -21,29 +21,46 @@ const BottomNav = ({ activeTab, onTabChange, showAdmin }: BottomNavProps) => {
     : baseTabs;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border safe-bottom max-w-md mx-auto">
-      <div className="flex items-center justify-around px-1 py-2">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className={cn(
-                "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all duration-200 min-w-[48px]",
-                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <tab.icon
-                className={cn("transition-all duration-200", isActive ? "w-6 h-6" : "w-5 h-5")}
-                fill={isActive ? "currentColor" : "none"}
-              />
-              <span className={cn("text-[10px] font-medium transition-all", isActive && "font-bold")}>
-                {tab.label}
-              </span>
-            </button>
-          );
-        })}
+    <nav
+      aria-label="Navegación principal"
+      className="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto pointer-events-none"
+    >
+      <div className="pointer-events-auto mx-2 mb-2 rounded-2xl bg-card/95 backdrop-blur-xl border border-border shadow-2xl safe-bottom">
+        <div className="flex items-stretch justify-around px-3 pt-2 pb-2 gap-1">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                aria-label={tab.label}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "relative flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[52px] rounded-xl px-1 py-1.5 transition-all duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  isActive
+                    ? "bg-primary/12 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                )}
+              >
+                {isActive && (
+                  <span
+                    aria-hidden
+                    className="absolute -top-[6px] left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary"
+                  />
+                )}
+                <tab.icon
+                  className={cn("transition-all", isActive ? "w-[22px] h-[22px]" : "w-[20px] h-[20px]")}
+                  fill={isActive ? "currentColor" : "none"}
+                  strokeWidth={isActive ? 2.4 : 2}
+                />
+                <span className={cn("text-[9.5px] leading-none tracking-tight", isActive ? "font-bold" : "font-medium")}>
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );

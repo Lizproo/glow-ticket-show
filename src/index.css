@@ -102,6 +102,31 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Accessibility: color blindness simulation via SVG filters */
+  html[data-daltonism="protanopia"] body { filter: url(#cb-protanopia); }
+  html[data-daltonism="deuteranopia"] body { filter: url(#cb-deuteranopia); }
+  html[data-daltonism="tritanopia"] body { filter: url(#cb-tritanopia); }
+
+  /* High contrast */
+  html.a11y-high-contrast {
+    --muted-foreground: 350 30% 25%;
+    --border: 350 30% 35%;
+  }
+  html.a11y-high-contrast.dark {
+    --muted-foreground: 40 25% 85%;
+    --border: 40 25% 60%;
+  }
+
+  /* Large text */
+  html.a11y-large-text { font-size: 17.5px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
 }
 
 @layer utilities {
