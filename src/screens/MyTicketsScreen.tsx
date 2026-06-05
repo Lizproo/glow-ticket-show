@@ -17,28 +17,42 @@ const MyTicketsScreen = () => {
   };
 
   return (
-    <div className="pb-24">
+    <div className="pb-28">
       <div className="px-4 pt-4 pb-2 safe-top">
         <h1 className="text-xl font-bold text-foreground">Mis Tickets</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">Sincronizados con tu cuenta</p>
+        <p className="text-xs text-muted-foreground mt-0.5">QR cifrado · se activa antes del evento</p>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-2 px-4 mt-3">
-        {(["active", "used", "expired"] as const).map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setActiveFilter(filter)}
-            className={cn(
-              "px-4 py-2 rounded-full text-xs font-semibold transition-all",
-              activeFilter === filter
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground"
-            )}
-          >
-            {filter === "active" ? "Activos" : filter === "used" ? "Usados" : "Expirados"}
-          </button>
-        ))}
+      {/* Tabs */}
+      <div role="tablist" aria-label="Filtros de tickets" className="grid grid-cols-3 gap-1 px-4 mt-3 bg-muted/50 rounded-full p-1 mx-4">
+        {(["active", "used", "expired"] as const).map((filter) => {
+          const count = tickets.filter((t) => t.status === filter).length;
+          const label = filter === "active" ? "Activos" : filter === "used" ? "Usados" : "Expirados";
+          return (
+            <button
+              key={filter}
+              role="tab"
+              aria-selected={activeFilter === filter}
+              onClick={() => setActiveFilter(filter)}
+              className={cn(
+                "py-2 rounded-full text-xs font-semibold transition-all flex items-center justify-center gap-1.5 min-h-[36px]",
+                activeFilter === filter
+                  ? "bg-primary text-primary-foreground shadow"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {label}
+              <span
+                className={cn(
+                  "text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px]",
+                  activeFilter === filter ? "bg-primary-foreground/20" : "bg-muted-foreground/15"
+                )}
+              >
+                {count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Ticket List */}

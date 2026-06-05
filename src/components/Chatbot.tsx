@@ -78,22 +78,23 @@ const Chatbot = () => {
 
   return (
     <>
-      {/* Floating bubble */}
+      {/* Floating bubble — sits above BottomNav (z-50) without covering its tabs */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Abrir asistente de IA"
-        className="fixed bottom-20 right-4 z-40 group"
+        className="fixed right-4 z-50 group"
+        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 88px)" }}
       >
         <div className="absolute inset-0 rounded-full gradient-primary blur-lg opacity-60 group-hover:opacity-100 transition-opacity animate-pulse-glow" />
-        <div className="relative w-14 h-14 rounded-full gradient-primary text-primary-foreground shadow-xl flex items-center justify-center hover-scale">
-          <Sparkles className="w-6 h-6" />
-          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-secondary border-2 border-background" />
+        <div className="relative w-12 h-12 rounded-full gradient-primary text-primary-foreground shadow-xl flex items-center justify-center hover-scale">
+          <Sparkles className="w-5 h-5" />
+          <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-secondary border-2 border-background" />
         </div>
       </button>
 
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-foreground/50 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center bg-foreground/50 backdrop-blur-md animate-fade-in"
           onClick={() => setOpen(false)}
         >
           <div
