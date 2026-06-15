@@ -132,6 +132,8 @@ const ProfileScreen = () => {
       />
       <ChangePasswordDialog open={changingPassword} onClose={() => setChangingPassword(false)} />
       <SettingsDialog open={openSettings} onClose={() => setOpenSettings(false)} />
+      <PrivacySecurityDialog open={openPrivacy} onClose={() => setOpenPrivacy(false)} />
+      <HelpSupportDialog open={openHelp} onClose={() => setOpenHelp(false)} />
     </div>
   );
 };
