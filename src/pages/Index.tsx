@@ -21,7 +21,7 @@ type Screen =
   | { type: "tabs" }
   | { type: "event-detail"; event: Event }
   | { type: "seat-selection"; event: Event }
-  | { type: "checkout"; event: Event; section: string; quantity: number; total: number };
+  | { type: "checkout"; event: Event; section: string; quantity: number; total: number; seats: string[] };
 
 const Index = () => {
   const { user, role, loading } = useAuth();
@@ -35,8 +35,8 @@ const Index = () => {
 
   const handleEventSelect = (event: Event) => setScreen({ type: "event-detail", event });
   const handleSelectSeats = (event: Event) => setScreen({ type: "seat-selection", event });
-  const handleCheckout = (event: Event, section: string, quantity: number, total: number) =>
-    setScreen({ type: "checkout", event, section, quantity, total });
+  const handleCheckout = (event: Event, section: string, quantity: number, total: number, seats: string[]) =>
+    setScreen({ type: "checkout", event, section, quantity, total, seats });
   const handleCheckoutComplete = () => {
     setScreen({ type: "tabs" });
     setActiveTab("tickets");
@@ -86,6 +86,7 @@ const Index = () => {
             section={screen.section}
             quantity={screen.quantity}
             total={screen.total}
+            seats={screen.seats}
             onBack={() => setScreen({ type: "seat-selection", event: screen.event })}
             onComplete={handleCheckoutComplete}
           />

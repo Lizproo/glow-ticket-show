@@ -130,9 +130,6 @@ const AuthScreen = () => {
         </button>
       </form>
 
-      <p className="text-[11px] text-muted-foreground text-center mt-6">
-        El primer usuario registrado se convierte en <strong>administrador</strong> automáticamente.
-      </p>
     </div>
   );
 };

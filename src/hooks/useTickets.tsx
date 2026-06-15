@@ -18,7 +18,7 @@ export interface DbTicket {
   quantity: number;
   total_price: number;
   qr_code: string;
-  status: "active" | "used" | "expired";
+  status: "active" | "expired";
   created_at: string;
 }
 
@@ -48,11 +48,15 @@ export const useTickets = () => {
   }, [load]);
 
   const purchase = useCallback(
-    async (event: Event, section: string, quantity: number, totalPrice: number) => {
+    async (
+      event: Event,
+      section: string,
+      quantity: number,
+      totalPrice: number,
+      seats: string[]
+    ) => {
       if (!user) throw new Error("No autenticado");
-      const seat = `${section.slice(0, 1).toUpperCase()}${Math.floor(
-        Math.random() * 99 + 1
-      )}`;
+      const seatStr = seats.length ? seats.join(",") : `${section.slice(0, 1).toUpperCase()}${Math.floor(Math.random() * 99 + 1)}`;
       const qr = `GLOW-${event.id}-${Date.now().toString(36).toUpperCase()}`;
       const { data, error } = await supabase
         .from("tickets")
@@ -66,7 +70,7 @@ export const useTickets = () => {
           event_city: event.city,
           event_image: event.image,
           event_category: event.category,
-          seat,
+          seat: seatStr,
           section,
           quantity,
           total_price: totalPrice,
@@ -83,4 +87,38 @@ export const useTickets = () => {
   );
 
   return { tickets, loading, purchase, reload: load };
+};
+
+// Hook independiente para conocer asientos ya vendidos de un evento
+export const useSoldSeats = (eventId: string, section: string) => {
+  const [sold, setSold] = useState<Set<string>>(new Set());
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setReady(false);
+    supabase
+      .from("tickets")
+      .select("seat, section")
+      .eq("event_id", eventId)
+      .eq("section", section)
+      .then(({ data }) => {
+        if (!active) return;
+        const s = new Set<string>();
+        (data ?? []).forEach((row: any) => {
+          String(row.seat ?? "")
+            .split(",")
+            .map((x) => x.trim())
+            .filter(Boolean)
+            .forEach((id) => s.add(id));
+        });
+        setSold(s);
+        setReady(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [eventId, section]);
+
+  return { sold, ready };
 };
