@@ -1,22 +1,14 @@
 import { useState } from "react";
 import {
-  User,
-  Bell,
-  HelpCircle,
-  LogOut,
-  ChevronRight,
-  Shield,
-  Moon,
-  Pencil,
-  Crown,
-  KeyRound,
-  Settings,
-  Ticket as TicketIcon,
+  User, HelpCircle, LogOut, ChevronRight, Shield, Moon, Pencil, Crown,
+  KeyRound, Settings, Ticket as TicketIcon,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import EditProfileDialog from "@/components/EditProfileDialog";
 import ChangePasswordDialog from "@/components/ChangePasswordDialog";
 import SettingsDialog from "@/components/SettingsDialog";
+import PrivacySecurityDialog from "@/components/PrivacySecurityDialog";
+import HelpSupportDialog from "@/components/HelpSupportDialog";
 import { usePreferences, defaultProfile } from "@/hooks/usePreferences";
 import { useTickets } from "@/hooks/useTickets";
 import { useAuth } from "@/hooks/useAuth";
@@ -29,49 +21,21 @@ const ProfileScreen = () => {
   const [editing, setEditing] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [openSettings, setOpenSettings] = useState(false);
+  const [openPrivacy, setOpenPrivacy] = useState(false);
+  const [openHelp, setOpenHelp] = useState(false);
 
   const profile = prefs.profile ?? defaultProfile;
   const displayName = authProfile?.full_name ?? profile.name ?? "Usuario";
   const displayEmail = user?.email ?? "—";
-  const activeTickets = tickets.filter((t) => t.status === "active").length;
+  const today = new Date().toISOString().slice(0, 10);
+  const activeTickets = tickets.filter((t) => t.event_date >= today).length;
 
   const menuItems: { icon: typeof User; label: string; desc: string; onClick: () => void }[] = [
-    {
-      icon: User,
-      label: "Editar perfil",
-      desc: "Nombre, teléfono y avatar",
-      onClick: () => setEditing(true),
-    },
-    {
-      icon: KeyRound,
-      label: "Cambiar contraseña",
-      desc: "Actualiza tu clave de acceso",
-      onClick: () => setChangingPassword(true),
-    },
-    {
-      icon: Settings,
-      label: "Accesibilidad",
-      desc: "Modo daltónico, contraste, texto",
-      onClick: () => setOpenSettings(true),
-    },
-    {
-      icon: Bell,
-      label: "Notificaciones",
-      desc: "Alertas y recordatorios",
-      onClick: () => toast({ title: "Próximamente", description: "Ajustes de notificaciones." }),
-    },
-    {
-      icon: Shield,
-      label: "Privacidad y seguridad",
-      desc: "Sesiones y dispositivos",
-      onClick: () => toast({ title: "Próximamente" }),
-    },
-    {
-      icon: HelpCircle,
-      label: "Ayuda y soporte",
-      desc: "FAQ y contacto",
-      onClick: () => toast({ title: "Pronto disponible", description: "Soporte 24/7 próximamente." }),
-    },
+    { icon: User, label: "Editar perfil", desc: "Nombre, teléfono y avatar", onClick: () => setEditing(true) },
+    { icon: KeyRound, label: "Cambiar contraseña", desc: "Actualiza tu clave de acceso", onClick: () => setChangingPassword(true) },
+    { icon: Settings, label: "Accesibilidad", desc: "Modo daltónico, contraste, texto", onClick: () => setOpenSettings(true) },
+    { icon: Shield, label: "Privacidad y seguridad", desc: "Sesiones, datos y dispositivos", onClick: () => setOpenPrivacy(true) },
+    { icon: HelpCircle, label: "Ayuda y soporte", desc: "Contáctanos cuando quieras", onClick: () => setOpenHelp(true) },
   ];
 
   return (
