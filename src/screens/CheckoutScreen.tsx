@@ -212,14 +212,41 @@ const CheckoutScreen = ({ event, section, quantity, total, seats, onBack, onComp
           <div className="glass-strong rounded-2xl p-4 space-y-3">
             <div>
               <label className="text-xs font-medium text-muted-foreground">Banco</label>
-              <input
-                type="text"
+              <select
                 value={bank}
                 onChange={(e) => setBank(e.target.value)}
-                placeholder="Nombre del banco"
-                maxLength={40}
                 className="w-full mt-1 px-3 py-2.5 rounded-xl bg-muted text-foreground text-sm border border-border focus:border-primary focus:outline-none"
-              />
+              >
+                <option value="">Selecciona un banco…</option>
+                <optgroup label="México">
+                  <option value="BBVA México">BBVA México</option>
+                  <option value="Banamex">Banamex</option>
+                  <option value="Santander México">Santander México</option>
+                  <option value="Banorte">Banorte</option>
+                  <option value="HSBC México">HSBC México</option>
+                </optgroup>
+                <optgroup label="Argentina">
+                  <option value="Banco Nación">Banco Nación</option>
+                  <option value="Banco Galicia">Banco Galicia</option>
+                  <option value="Santander Argentina">Santander Argentina</option>
+                  <option value="BBVA Argentina">BBVA Argentina</option>
+                  <option value="Mercado Pago">Mercado Pago</option>
+                </optgroup>
+                <optgroup label="Colombia">
+                  <option value="Bancolombia">Bancolombia</option>
+                  <option value="Davivienda">Davivienda</option>
+                  <option value="BBVA Colombia">BBVA Colombia</option>
+                  <option value="Banco de Bogotá">Banco de Bogotá</option>
+                  <option value="Nequi">Nequi</option>
+                </optgroup>
+                <optgroup label="Chile / Perú">
+                  <option value="Banco de Chile">Banco de Chile</option>
+                  <option value="BCI">BCI</option>
+                  <option value="Santander Chile">Santander Chile</option>
+                  <option value="BCP Perú">BCP Perú</option>
+                  <option value="Interbank">Interbank</option>
+                </optgroup>
+              </select>
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">Número de cuenta</label>
