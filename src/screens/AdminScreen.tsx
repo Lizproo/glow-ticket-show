@@ -135,8 +135,8 @@ const AdminScreen = () => {
       status: "activo",
     };
     const { error } = editing
-      ? await supabase.from("events").update(payload).eq("id", editing.id)
-      : await supabase.from("events").insert(payload);
+      ? await supabase.from("events").update(payload as any).eq("id", editing.id)
+      : await supabase.from("events").insert(payload as any);
     setSaving(false);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
