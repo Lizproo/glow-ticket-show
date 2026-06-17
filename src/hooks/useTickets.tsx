@@ -86,7 +86,21 @@ export const useTickets = () => {
     [user, load]
   );
 
-  return { tickets, loading, purchase, reload: load };
+  const markAsUsed = useCallback(
+    async (ticketId: string) => {
+      if (!user) throw new Error("No autenticado");
+      const { error } = await supabase
+        .from("tickets")
+        .update({ status: "expired" })
+        .eq("id", ticketId)
+        .eq("user_id", user.id);
+      if (error) throw error;
+      await load();
+    },
+    [user, load]
+  );
+
+  return { tickets, loading, purchase, markAsUsed, reload: load };
 };
 
 // Hook independiente para conocer asientos ya vendidos de un evento

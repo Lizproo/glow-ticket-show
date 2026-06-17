@@ -1,16 +1,18 @@
-import { Calendar, MapPin, QrCode, ShieldCheck, Loader2, EyeOff } from "lucide-react";
+import { Calendar, MapPin, QrCode, ShieldCheck, Loader2, EyeOff, ScanLine, ImageOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import AnimatedQR from "@/components/AnimatedQR";
+import GoldenTicketModal from "@/components/GoldenTicketModal";
 import { useTickets, DbTicket } from "@/hooks/useTickets";
 import { useAntiCapture } from "@/hooks/useAntiCapture";
 
 type Filter = "active" | "expired";
 
 const MyTicketsScreen = () => {
-  const { tickets, loading } = useTickets();
+  const { tickets, loading, markAsUsed } = useTickets();
   const [activeFilter, setActiveFilter] = useState<Filter>("active");
   const [expandedTicket, setExpandedTicket] = useState<string | null>(null);
+  const [celebrated, setCelebrated] = useState<{ title: string } | null>(null);
   const { hidden } = useAntiCapture(true);
 
   const today = new Date().toISOString().slice(0, 10);
@@ -19,7 +21,8 @@ const MyTicketsScreen = () => {
     () =>
       tickets.map((t) => ({
         ...t,
-        computedStatus: (t.event_date < today ? "expired" : "active") as Filter,
+        // expirado si status ya es expired O si la fecha del evento ya pasó
+        computedStatus: (t.status === "expired" || t.event_date < today ? "expired" : "active") as Filter,
       })),
     [tickets, today]
   );
@@ -29,6 +32,16 @@ const MyTicketsScreen = () => {
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
     return date.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+  };
+
+  const handleScan = async (ticket: DbTicket) => {
+    try {
+      await markAsUsed(ticket.id);
+      setCelebrated({ title: ticket.event_title });
+      setExpandedTicket(null);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
