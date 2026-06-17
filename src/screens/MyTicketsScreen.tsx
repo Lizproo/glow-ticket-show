@@ -98,6 +98,7 @@ const MyTicketsScreen = () => {
               ticket={ticket}
               expanded={expandedTicket === ticket.id}
               onToggle={() => setExpandedTicket(expandedTicket === ticket.id ? null : ticket.id)}
+              onScan={() => handleScan(ticket)}
               formatDate={formatDate}
               expired={ticket.computedStatus === "expired"}
             />
@@ -114,23 +115,50 @@ const MyTicketsScreen = () => {
           </p>
         </div>
       )}
+
+      <GoldenTicketModal
+        open={!!celebrated}
+        eventTitle={celebrated?.title ?? ""}
+        onClose={() => setCelebrated(null)}
+      />
     </div>
   );
 };
 
+const TicketImage = ({ src, alt }: { src: string | null; alt: string }) => {
+  const [errored, setErrored] = useState(false);
+  if (!src || errored) {
+    return (
+      <div className="w-full h-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
+        <ImageOff className="w-8 h-8 text-muted-foreground/60" />
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      onError={() => setErrored(true)}
+      className="w-full h-full object-cover"
+      loading="lazy"
+    />
+  );
+};
+
 const TicketCard = ({
-  ticket, expanded, onToggle, formatDate, expired,
+  ticket, expanded, onToggle, onScan, formatDate, expired,
 }: {
   ticket: DbTicket;
   expanded: boolean;
   onToggle: () => void;
+  onScan: () => void;
   formatDate: (d: string) => string;
   expired: boolean;
 }) => (
-  <button onClick={onToggle} className="w-full text-left">
-    <div className="glass-card rounded-2xl overflow-hidden animate-slide-up">
+  <div className="glass-card rounded-2xl overflow-hidden animate-slide-up">
+    <button onClick={onToggle} className="w-full text-left">
       <div className="relative h-28">
-        {ticket.event_image && <img src={ticket.event_image} alt={ticket.event_title} className="w-full h-full object-cover" loading="lazy" />}
+        <TicketImage src={ticket.event_image} alt={ticket.event_title} />
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/70 to-transparent" />
         <div className="absolute bottom-3 left-3">
           <p className="text-xs text-glow-cream font-medium">{ticket.section}</p>
@@ -154,24 +182,34 @@ const TicketCard = ({
           <div className="flex items-center gap-2 text-xs text-muted-foreground"><Calendar className="w-3 h-3" /><span>{formatDate(ticket.event_date)}</span></div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground"><MapPin className="w-3 h-3" /><span>{ticket.event_city}</span></div>
         </div>
-
-        {expanded && !expired && (
-          <div className="mt-4 animate-slide-up">
-            <div className="flex flex-col items-center gap-3 p-4 bg-muted/60 rounded-xl">
-              <AnimatedQR value={ticket.qr_code} size={170} />
-              <p className="text-xs font-mono text-muted-foreground tracking-wider">{ticket.qr_code}</p>
-              <p className="text-[10px] text-muted-foreground">
-                Asiento{ticket.seat.includes(",") ? "s" : ""}: {ticket.seat} · {ticket.quantity} entrada{ticket.quantity > 1 ? "s" : ""}
-              </p>
-              <div className="flex items-center gap-1.5 text-[10px] text-secondary font-semibold">
-                <ShieldCheck className="w-3 h-3" /> Validación cifrada · 15s
-              </div>
-            </div>
-          </div>
-        )}
       </div>
-    </div>
-  </button>
+    </button>
+
+    {expanded && !expired && (
+      <div className="px-4 pb-4 animate-slide-up">
+        <div className="flex flex-col items-center gap-3 p-4 bg-muted/60 rounded-xl">
+          <AnimatedQR value={ticket.qr_code} size={170} />
+          <p className="text-xs font-mono text-muted-foreground tracking-wider">{ticket.qr_code}</p>
+          <p className="text-[10px] text-muted-foreground">
+            Asiento{ticket.seat.includes(",") ? "s" : ""}: {ticket.seat} · {ticket.quantity} entrada{ticket.quantity > 1 ? "s" : ""}
+          </p>
+          <div className="flex items-center gap-1.5 text-[10px] text-secondary font-semibold">
+            <ShieldCheck className="w-3 h-3" /> Validación cifrada · 15s
+          </div>
+          <button
+            onClick={onScan}
+            className="mt-2 w-full py-2.5 rounded-xl gradient-gold text-foreground text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition"
+          >
+            <ScanLine className="w-4 h-4" />
+            Simular escaneo en entrada
+          </button>
+          <p className="text-[10px] text-muted-foreground text-center">
+            Al escanear, el ticket se marca como usado y no se puede volver a presentar.
+          </p>
+        </div>
+      </div>
+    )}
+  </div>
 );
 
 export default MyTicketsScreen;
